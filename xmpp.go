@@ -41,10 +41,11 @@ const (
 	XMPPIQResult = "result"
 
 	// GCM service constants.
-	ccsHostProd = "gcm.googleapis.com"
-	ccsPortProd = "5235"
-	ccsHostDev  = "gcm-preprod.googleapis.com"
-	ccsPortDev  = "5236"
+	ccsHostProd       = "fcm-xmpp.googleapis.com"
+	ccsPortProd       = "5235"
+	ccsHostDev        = "fcm-xmpp.googleapis.com"
+	ccsPortDev        = "5236"
+	ccsSenderIDSuffix = "gcm.googleapis.com"
 
 	// For CCS the min for exponential backoff has to be 1 sec
 	ccsMinBackoff = 1 * time.Second
@@ -109,7 +110,7 @@ func newXMPPClient(isSandbox bool, senderID string, apiKey string, debug bool) (
 		xmppAddress = net.JoinHostPort(ccsHostProd, ccsPortProd)
 	}
 
-	nc, err := xmpp.NewClient(xmppAddress, xmppUser(xmppHost, senderID), apiKey, debug)
+	nc, err := xmpp.NewClient(xmppAddress, xmppUser(senderID), apiKey, debug)
 	if err != nil {
 		return nil, fmt.Errorf("error connecting gcm xmpp client: %v", err)
 	}
@@ -397,6 +398,6 @@ func (c *gcmXMPP) retryMessage(cm CCSMessage, h MessageHandler) {
 }
 
 // xmppUser generates an xmpp username from a sender ID.
-func xmppUser(xmppHost, senderID string) string {
-	return senderID + "@" + xmppHost
+func xmppUser(senderID string) string {
+	return senderID + "@" + ccsSenderIDSuffix
 }
